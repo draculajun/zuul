@@ -1,0 +1,21 @@
+server:
+  port: 5555
+
+spring:
+  application:
+    name: zuul
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: SPRINGCLOUDCONFIG
+      profile: qa
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:10000/eureka/
