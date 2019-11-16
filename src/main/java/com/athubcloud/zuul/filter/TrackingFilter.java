@@ -28,7 +28,12 @@ public class TrackingFilter extends ZuulFilter {
     @Override
     public Object run() throws ZuulException {
         RequestContext ctx = RequestContext.getCurrentContext();
-        String relationId = java.util.UUID.randomUUID().toString();
+        String relationId = "";
+        if (ctx.getRequest().getHeader(TrackingFilter.RELATION_ID) != null) {
+            relationId = ctx.getRequest().getHeader(TrackingFilter.RELATION_ID);
+        } else {
+            relationId = java.util.UUID.randomUUID().toString();
+        }
         System.out.println("RelationId: " + relationId);
         ctx.addZuulRequestHeader(TrackingFilter.RELATION_ID, relationId);
         return null;
