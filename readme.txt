@@ -27,3 +27,5 @@ management:
 #在zuul的url增加api的prefix，如http://192.168.31.139:5555/api/demo/demo
 zuul:
   prefix: /api
+
+# ribbon超时不能配置在springbootcloud的config中，需要配置在本地
