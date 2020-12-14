@@ -19,8 +19,6 @@ public class MyZuulFilter extends ZuulFilter {
     @Autowired
     private SimpleRouteLocator simpleRouteLocator;
 
-    public static final String RELATION_ID = "relation-id";
-
     @Override
     public String filterType() {
         return "pre";
