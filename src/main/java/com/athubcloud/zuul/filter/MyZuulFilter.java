@@ -3,10 +3,12 @@ package com.athubcloud.zuul.filter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.athubcloud.util.JwtHelper;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
 
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.zuul.filters.Route;
 import org.springframework.cloud.netflix.zuul.filters.SimpleRouteLocator;
@@ -31,18 +33,10 @@ public class MyZuulFilter extends ZuulFilter {
 
     @Override
     public boolean shouldFilter() {
-        return true;
-    }
-
-    @Override
-    public Object run() throws ZuulException {
-
         RequestContext ctx = RequestContext.getCurrentContext();
         HttpServletResponse response = ctx.getResponse();
         HttpServletRequest request = ctx.getRequest();
         String url = request.getRequestURL().toString();
-
-        Boolean pass = true;
 
         String serviceName = null;
         Route route = simpleRouteLocator.getMatchingRoute(request.getRequestURI());
@@ -51,22 +45,31 @@ public class MyZuulFilter extends ZuulFilter {
         }
 
         if (HttpMethod.OPTIONS.matches(request.getMethod())) {
-            return null;
+            return true;
         }
 
         if (url == null) {
-            return null;
+            return true;
         }
-        String[] filterUrl = new String[] { "info"};
+        String[] filterUrl = new String[] { "info", "login" };
         for (int i = 0; i < filterUrl.length; i++) {
             if (url.contains(filterUrl[i])) {
-                return null;
+                return true;
             }
         }
 
-        //TODO JWT
+        if (request.getHeader("jwt") == null
+                || (request.getHeader("jwt") != null && JwtHelper.validateLogin(request.getHeader("jwt")) == null)) {
+            ctx.setSendZuulResponse(false);
+            ctx.setResponseStatusCode(HttpStatus.SC_UNAUTHORIZED);
+            return false;
+        }
 
+        return true;
+    }
 
+    @Override
+    public Object run() throws ZuulException {
         return null;
     }
 }
